@@ -1,78 +1,136 @@
-const API_URL = "https://URL-DE-TU-PROFE"
+// simulación de base de datos en el navegador
 
-export const crearSala = async(nombre)=>{
+// CREAR SALA (POST)
+export async function crearSala(nombre){
 
-const res = await fetch(`${API_URL}/salas`,{
+const salas = JSON.parse(localStorage.getItem("salas")) || []
 
-method:"POST",
+const nuevaSala = {
 
-headers:{
-"Content-Type":"application/json"
+id_sala: salas.length + 1,
+nombre_sala: nombre
+
+}
+
+salas.push(nuevaSala)
+
+localStorage.setItem("salas",JSON.stringify(salas))
+
+return [nuevaSala]
+
+}
+
+
+
+// REGISTRAR JUGADOR (POST)
+export async function registrarJugador(nombre,idSala){
+
+const jugadores = JSON.parse(localStorage.getItem("jugadores")) || []
+
+const nuevoJugador = {
+
+id_jugador: jugadores.length + 1,
+nombre: nombre,
+id_sala: parseInt(idSala),
+puntaje:0
+
+}
+
+jugadores.push(nuevoJugador)
+
+localStorage.setItem("jugadores",JSON.stringify(jugadores))
+
+return [nuevoJugador]
+
+}
+
+
+
+// OBTENER PREGUNTAS (GET)
+export async function obtenerPreguntas(){
+
+return [
+
+{
+
+id_pregunta:1,
+pregunta:"Capital de Colombia",
+opcion_a:"Bogotá",
+opcion_b:"Lima",
+opcion_c:"Quito",
+opcion_d:"Caracas",
+respuesta_correcta:"Bogotá"
+
 },
 
-body: JSON.stringify({
-nombre_sala:nombre
-})
+{
 
-})
-
-return res.json()
-
-}
-
-export const registrarJugador = async(nombre,idSala)=>{
-
-const res = await fetch(`${API_URL}/jugadores`,{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body: JSON.stringify({
-
-nombre,
-id_sala:idSala
-
-})
-
-})
-
-return res.json()
+id_pregunta:2,
+pregunta:"2 + 2",
+opcion_a:"3",
+opcion_b:"4",
+opcion_c:"5",
+opcion_d:"6",
+respuesta_correcta:"4"
 
 }
 
-export const obtenerPreguntas = async()=>{
-
-const res = await fetch(`${API_URL}/preguntas`)
-
-return res.json()
+]
 
 }
 
-export const guardarRespuesta = async(data)=>{
 
-const res = await fetch(`${API_URL}/respuestas`,{
 
-method:"POST",
+// GUARDAR RESPUESTA (POST)
+export async function guardarRespuesta(data){
 
-headers:{
-"Content-Type":"application/json"
-},
+const respuestas = JSON.parse(localStorage.getItem("respuestas")) || []
 
-body: JSON.stringify(data)
+respuestas.push(data)
+
+localStorage.setItem("respuestas",JSON.stringify(respuestas))
+
+return data
+
+}
+
+
+
+// ACTUALIZAR PUNTAJE (PATCH)
+export async function actualizarPuntaje(idJugador,puntos){
+
+let jugadores = JSON.parse(localStorage.getItem("jugadores")) || []
+
+jugadores = jugadores.map(j=>{
+
+if(j.id_jugador == idJugador){
+
+return {
+
+...j,
+puntaje:puntos
+
+}
+
+}
+
+return j
 
 })
 
-return res.json()
+localStorage.setItem("jugadores",JSON.stringify(jugadores))
+
+return true
 
 }
 
-export const obtenerJugadores = async(idSala)=>{
 
-const res = await fetch(`${API_URL}/salas/${idSala}/jugadores`)
 
-return res.json()
+// OBTENER JUGADORES POR SALA (GET)
+export async function obtenerJugadores(idSala){
+
+const jugadores = JSON.parse(localStorage.getItem("jugadores")) || []
+
+return jugadores.filter(j=>j.id_sala == idSala)
 
 }

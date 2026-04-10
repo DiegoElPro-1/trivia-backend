@@ -1,16 +1,25 @@
 import { useState } from "react"
 import { registrarJugador } from "../services/api"
+import { useNavigate } from "react-router-dom"
 
 function RegistrarJugador(){
 
 const[nombre,setNombre]=useState("")
-const[idSala,setIdSala]=useState("")
+const navigate = useNavigate()
 
 const guardar = async()=>{
 
-await registrarJugador(nombre,idSala)
+const idSala = localStorage.getItem("idSala")
+
+const data = await registrarJugador(nombre,idSala)
+
+const idJugador = data[0].id_jugador
+
+localStorage.setItem("idJugador",idJugador)
 
 alert("Jugador registrado")
+
+navigate("/preguntas")
 
 }
 
@@ -21,29 +30,13 @@ return(
 <h2>Registrar jugador</h2>
 
 <input
-
 placeholder="Nombre jugador"
-
 value={nombre}
-
 onChange={(e)=>setNombre(e.target.value)}
-
-/>
-
-<input
-
-placeholder="ID sala"
-
-value={idSala}
-
-onChange={(e)=>setIdSala(e.target.value)}
-
 />
 
 <button onClick={guardar}>
-
 Entrar
-
 </button>
 
 </div>

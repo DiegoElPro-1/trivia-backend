@@ -1,10 +1,14 @@
 import { useEffect,useState } from "react"
-
-import { obtenerPreguntas, guardarRespuesta } from "../services/api"
+import { obtenerPreguntas, guardarRespuesta, actualizarPuntaje } from "../services/api"
+import { useNavigate } from "react-router-dom"
 
 function Preguntas(){
 
 const[preguntas,setPreguntas]=useState([])
+const[indice,setIndice]=useState(0)
+const[puntaje,setPuntaje]=useState(0)
+
+const navigate = useNavigate()
 
 useEffect(()=>{
 
@@ -20,75 +24,89 @@ setPreguntas(data)
 
 }
 
-const responder = async(idPregunta,respuesta)=>{
 
+// CUANDO EL USUARIO RESPONDE
+const responder = async(opcion)=>{
+
+const pregunta = preguntas[indice]
+
+// verificar si es correcta
+const correcta = opcion === pregunta.respuesta_correcta
+
+let nuevoPuntaje = puntaje
+
+if(correcta){
+
+nuevoPuntaje = puntaje + 10
+
+setPuntaje(nuevoPuntaje)
+
+}
+
+// obtener id jugador guardado
+const idJugador = localStorage.getItem("idJugador")
+
+// guardar respuesta
 await guardarRespuesta({
 
-id_jugador:1,
-
-id_pregunta:idPregunta,
-
-respuesta
+id_jugador:idJugador,
+id_pregunta:pregunta.id_pregunta,
+respuesta:opcion,
+es_correcta:correcta
 
 })
 
-alert("Respuesta guardada")
+// actualizar puntaje
+await actualizarPuntaje(idJugador,nuevoPuntaje)
+
+
+// pasar a siguiente pregunta
+if(indice < preguntas.length-1){
+
+setIndice(indice+1)
+
+}else{
+
+navigate("/puntaje")
 
 }
+
+}
+
+
+if(preguntas.length===0) return <p>Cargando...</p>
 
 return(
 
 <div>
 
-<h2>Preguntas</h2>
+<h2>
 
-<button onClick={cargar}>
+{preguntas[indice].pregunta}
 
-Actualizar
+</h2>
 
+<button onClick={()=>responder(preguntas[indice].opcion_a)}>
+{preguntas[indice].opcion_a}
 </button>
 
-{
-
-preguntas.map(p=>(
-
-<div key={p.id_pregunta}>
-
-<h3>
-
-{p.pregunta}
-
-</h3>
-
-<button onClick={()=>responder(p.id_pregunta,"A")}>
-
-{p.opcion_a}
-
+<button onClick={()=>responder(preguntas[indice].opcion_b)}>
+{preguntas[indice].opcion_b}
 </button>
 
-<button onClick={()=>responder(p.id_pregunta,"B")}>
-
-{p.opcion_b}
-
+<button onClick={()=>responder(preguntas[indice].opcion_c)}>
+{preguntas[indice].opcion_c}
 </button>
 
-<button onClick={()=>responder(p.id_pregunta,"C")}>
-
-{p.opcion_c}
-
+<button onClick={()=>responder(preguntas[indice].opcion_d)}>
+{preguntas[indice].opcion_d}
 </button>
 
-<button onClick={()=>responder(p.id_pregunta,"D")}>
+<p>
 
-{p.opcion_d}
+Puntaje actual: {puntaje}
 
-</button>
-
-</div>
-
-))
-
-}
+</p>
 
 </div>
 

@@ -1,17 +1,26 @@
 import { useState } from "react"
 import { crearSala } from "../services/api"
+import { useNavigate } from "react-router-dom"
 
 function CrearSala(){
 
 const[nombre,setNombre]=useState("")
+const navigate = useNavigate()
 
 const guardar = async(e)=>{
 
 e.preventDefault()
 
-await crearSala(nombre)
+const data = await crearSala(nombre)
 
-alert("Sala creada")
+const idSala = data[0].id_sala
+
+// guardar id en memoria del navegador
+localStorage.setItem("idSala",idSala)
+
+alert("Sala creada ID: "+idSala)
+
+navigate("/jugador")
 
 }
 
@@ -24,13 +33,9 @@ return(
 <form onSubmit={guardar}>
 
 <input
-
 placeholder="Nombre de la sala"
-
 value={nombre}
-
 onChange={(e)=>setNombre(e.target.value)}
-
 />
 
 <button>
